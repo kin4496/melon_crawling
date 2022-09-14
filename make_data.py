@@ -40,6 +40,10 @@ if __name__=="__main__":
             id=item['_id']
             song_tag.song_id=id
         
+        #데이터 베이스에 이미 저장되어있다면 데이터 베이스에 저장하지 않는다.
+        if model.has_song_by_meta(n_collection,title,artist):
+            continue
+        
         model.save_data(n_collection=n_collection,data=song_tag.get_data())
     
     print('데이터 베이스에 '+' '.join(tags)+'를 포함하는 노래 리스트를 저장했습니다.')
