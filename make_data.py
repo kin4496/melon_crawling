@@ -49,7 +49,7 @@ if __name__=="__main__":
     print('데이터 베이스에 '+' '.join(tags)+'를 포함하는 노래 리스트를 저장했습니다.')
 
     song_tags=[]
-    song_metas=[]
+    
 
     #데이터 베이스에 들어있는 노래 리스트 가져오기
     for tag in tags:
@@ -57,7 +57,7 @@ if __name__=="__main__":
     
     print('멜론에서 노래 가사,발매일,장르 크롤링을 시작합니다.')
 
-    #멜론에서 노래 가사,발매일,장르 크롤링하기
+    #멜론에서 노래 가사,발매일,장르 크롤링한 후 데이터베이스에 저장
     for song_tag in tqdm(song_tags):
         
         song_tag=SongTag(tag=song_tag['tag'],title=song_tag['title'],artist=song_tag['artist'],song_id=song_tag['song_id'])
@@ -75,19 +75,12 @@ if __name__=="__main__":
         #노래 정보를 크롤링하지 못하면 저장하지 않는다.
         if song_meta == None:
             continue
-
-        song_metas.append(song_meta)
-    
-    print('데이터베이스에 노래정보를 저장합니다.')
-    
-    #데이터베이스에 노래 정보 저장하기
-    for song_meta in tqdm(song_metas):
+        
+        #크롤링된 정보와 함께 데이터베이스에 저장
         id=model.save_data('song_meta',song_meta.get_data())
 
-        #song_tag에 song_id 수정하기
+        #n_collection에 song_id값 저장
         model.update_song_by_meta(n_collection,title=song_meta.title,artist=song_meta.artist,id=id)
-
-
     
     print('작업을 완료했습니다.')
 
