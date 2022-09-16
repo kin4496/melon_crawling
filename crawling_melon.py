@@ -144,7 +144,12 @@ def get_song_meta_from_melon(driver,song_tag):
     if search_bar==None:
         print('검색 창을 찾을 수 없습니다.')
         return None
-    search_bar.send_keys(artist[0]+' '+title)
+    if len(artist)==0:
+        search=title
+    else:
+        search=artist[0]+' '+title
+
+    search_bar.send_keys(search)
 
     #검색 버튼 눌러 검색하기
     search_btn=find_element(driver,By.XPATH,'//*[@id="gnb"]/fieldset/button[2]')
@@ -183,7 +188,7 @@ if __name__=="__main__":
     driver=get_driver()
     url= 'https://www.melon.com/dj/themegenre/djthemegenre_list.htm'
     driver.get(url)
-    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','510005699')")
+    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','513728491')")
     song_tags=get_song_tag_from_playlist(driver,'이별',cmd)
 
     for song_tag in song_tags:
