@@ -112,7 +112,9 @@ def get_song_tag_from_playlist(driver,tag,cmd):
         artist=list(map(lambda x:x.get_attribute('title') if x != None else '',artist_tag))
         artist=list(map(lambda x:x.removesuffix(' - 페이지 이동'),artist))
 
-        if len(artist)!= 0:
+        # 가수 정보가 없는 경우 처리 해주지 않는다.
+        if len(artist)!= 0 and artist[0]!='':
+            #가수가 중복해서 들어가기 때문에 빼준다.
             artist.pop()
         
         artists+=[artist]
