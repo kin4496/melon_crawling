@@ -1,8 +1,8 @@
 from pymongo import MongoClient
 
-def get_db():
+def get_db(n_db='music'):
     client = MongoClient("mongodb://localhost:27017/")
-    db = client['music']
+    db = client[n_db]
     return db
 
 def get_collection(collection):
