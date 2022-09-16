@@ -103,14 +103,19 @@ def get_song_tag_from_playlist(driver,tag,cmd):
     titles=list(map(lambda x:x.removesuffix(' 재생'),titles))
 
     #가수 정보가 있는 태그 가져오기
-    artists=find_elements(driver,By.CLASS_NAME,'rank02')
+    artist_tags=find_elements(driver,By.CLASS_NAME,'rank02')
     #가수 정보가 있는 a 태그 가져오기
-    artists=list(map(lambda x:find_element(x,By.TAG_NAME,'a'),artists))
+    artist_tags=list(map(lambda x:find_elements(x,By.TAG_NAME,'a'),artist_tags))
+    artists=[]
+    for artist_tag in artist_tags:
+        #가수만 가져오기
+        artist=list(map(lambda x:x.get_attribute('title') if x != None else '',artist_tag))
+        artist=list(map(lambda x:x.removesuffix(' - 페이지 이동'),artist))
 
-    #가수만 가져오기
-    artists=list(map(lambda x:x.get_attribute('title') if x != None else '',artists))
-    artists=list(map(lambda x:x.removesuffix(' - 페이지 이동'),artists))
-    artists=list(map(lambda x:x.split(','),artists))
+        if len(artist)!= 0:
+            artist.pop()
+        
+        artists+=[artist]
 
     song_tags=[]
 
@@ -178,9 +183,9 @@ def get_song_meta_from_melon(driver,song_tag):
 if __name__=="__main__":
     driver=get_driver()
     url= 'https://www.melon.com/dj/themegenre/djthemegenre_list.htm'
+    driver.get(url)
+    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','513728491')")
+    song_tags=get_song_tag_from_playlist(driver,'이별',cmd)
 
-    song_tags=get_song_tag_from_melon(driver,'사랑',isDebug=True)
-    print(song_tags[0].title)
-
-    song_meta=get_song_meta_from_melon(driver,SongTag('벚꽃','벚꽃엔딩','버스커버스커',None))
-    print(song_meta.lyric)
+    for song_tag in song_tags:
+        print(song_tag.title,song_tag.artist)
