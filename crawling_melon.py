@@ -112,10 +112,7 @@ def get_song_tag_from_playlist(driver,tag,cmd):
         artist=list(map(lambda x:x.get_attribute('title') if x != None else '',artist_tag))
         artist=list(map(lambda x:x.removesuffix(' - 페이지 이동'),artist))
 
-        # 가수 정보가 없는 경우 처리 해주지 않는다.
-        if len(artist)!= 0 and artist[0]!='':
-            #가수가 중복해서 들어가기 때문에 빼준다.
-            artist.pop()
+        artist=list(set(artist))
         
         artists+=[artist]
 
@@ -186,7 +183,7 @@ if __name__=="__main__":
     driver=get_driver()
     url= 'https://www.melon.com/dj/themegenre/djthemegenre_list.htm'
     driver.get(url)
-    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','513728491')")
+    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','510005699')")
     song_tags=get_song_tag_from_playlist(driver,'이별',cmd)
 
     for song_tag in song_tags:
