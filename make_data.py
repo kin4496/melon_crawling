@@ -66,8 +66,8 @@ if __name__=="__main__":
         artist=song_tag.artist
         song_id=song_tag.song_id
 
-        #song_id가 None이 아니라면 크롤링을 하지 않는다.
-        if song_id != None:
+        # song_meta 컬렉션에 이미 저장되어있으면 크롤링하지 않는다.
+        if song_id != None or model.has_song_by_meta('song_meta',title,artist):
             continue
         
         song_meta=melon.get_song_meta_from_melon(driver,song_tag)
