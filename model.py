@@ -1,12 +1,13 @@
 from pymongo import MongoClient
+import pandas as pd
 
 def get_db(n_db='music'):
     client = MongoClient("mongodb://localhost:27017/")
     db = client[n_db]
     return db
+db=get_db()
 
 def get_collection(collection):
-    db=get_db()
     return db[collection]
 
 def get_song_tag_all(n_collection,tag):
@@ -49,4 +50,60 @@ def save_data(n_collection,data):
     return collection.insert_one(data).inserted_id
 
 
+
+def get_dataFrame():
     
+    titles=[]
+    artists=[]
+    lyrics=[]
+    issue_dates=[]
+    moods=[]
+    sits=[]
+    topics=[]
+    genres=[]
+    
+    song_metas=get_collection('song_meta').find()
+    
+    n_collections=db.list_collection_names()
+    
+    for song_meta in song_metas:
+        
+        id =song_meta['_id']
+        title=song_meta['title']
+        lyric= song_meta['lyric']
+        artist= song_meta['artist']
+        issue_date = song_meta['issue_date']
+        genre = song_meta['genre']
+        
+        titles.append(title)
+        lyrics.append(lyric)
+        artists.append(artist)
+        issue_dates.append(issue_date)
+        genres.append(genre)
+        
+        topics.append(None)
+        moods.append(None)
+        sits.append(None)
+        
+        for n_collection in n_collections:
+            
+            if n_collection == 'song_meta':
+                continue
+            collection = db[n_collection]
+            item=collection.find_one({
+                'song_id':id
+            })
+            
+            tag = item['tag'] if item != None else None
+            
+            if n_collection == 'topic':
+                topics[-1]=tag
+            elif n_collection == 'mood':
+                moods[-1]=tag
+            elif n_collection == 'situation':
+                sits[-1]=tag
+    return pd.DataFrame({'title':titles,'artist':artists,'lyric':lyrics,'genre':genres,'issue_date':issue_dates,'topic':topics,'mood':moods,'situation':sits})
+                
+
+df=get_dataFrame()
+df.to_excel('test.xlsx')       
