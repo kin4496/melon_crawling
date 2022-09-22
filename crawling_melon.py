@@ -28,7 +28,7 @@ def get_driver():
 
 def clean_cmd(cmd):
     if cmd.startswith('javascript:'):
-            cmd=cmd.removeprefix('javascript:')
+        cmd=cmd.removeprefix('javascript:')
     return cmd
 
 def find_element(parent,by,filter):
@@ -42,7 +42,7 @@ def find_elements(parent,by,filter):
     return parent.find_elements(by,filter)
 
 #song_tag를 크롤링할 때 쓰는 함수들
-def get_song_tag_from_melon(driver,tag,page=1,isDebug=False):
+def get_song_tag_from_melon(driver,tag,page=1,alone=False,diff_tags=[],isDebug=False):
     #url로 이동
     url = 'https://www.melon.com/dj/themegenre/djthemegenre_list.htm'
     driver.get(url)
@@ -88,12 +88,30 @@ def get_playlist_cmd(driver,page):
 
     return playLists
 
-def get_song_tag_from_playlist(driver,tag,cmd):
+def get_song_tag_from_playlist(driver,tag,cmd,alone=False,diff_tags=[]):
    
     #플레이리스트 페이지로 이동
     driver.execute_script(cmd)
     wait(1,2)
 
+    if alone:
+        tag_list=find_element(driver,By.XPATH,'//*[@id="conts"]/div[2]/div/div[2]/div[3]')
+        if tag_list == None:
+            print('태그 리스트를 찾지 못했습니다.')
+            return []
+        tag_list=find_elements(tag_list,By.CLASS_NAME,'tag_item')
+        tag_list=list(map(lambda x:x.text.lstrip('#'),tag_list))
+        
+        for tag in tag_list:
+            if tag in diff_tags:
+                playlist_name=find_element(driver,By.XPATH,'//*[@id="conts"]/div[2]/div/div[2]/div[1]/div[1]')
+                if playlist_name == None:
+                    playlist_name='이름 없음'
+                else:
+                    playlist_name=playlist_name.text
+                print(playlist_name+'에 겹치는 안되는 태그가 있어 수집하지 않습니다.')
+                return []
+        
     #제목 정보가 있는 태그 가져오기
     titles=find_elements(driver,By.CLASS_NAME,'rank01')
     #제목 정보가 있는 a 태그 가져오기
@@ -188,8 +206,5 @@ if __name__=="__main__":
     driver=get_driver()
     url= 'https://www.melon.com/dj/themegenre/djthemegenre_list.htm'
     driver.get(url)
-    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','513728491')")
-    song_tags=get_song_tag_from_playlist(driver,'이별',cmd)
-
-    for song_tag in song_tags:
-        print(song_tag.title,song_tag.artist)
+    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','482263772')")
+    song_tags=get_song_tag_from_playlist(driver,'이별',cmd,alone=True,diff_tags=['기쁨'])
