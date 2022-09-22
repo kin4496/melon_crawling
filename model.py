@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 import pandas as pd
+import os
 
 def get_db(n_db='music'):
     client = MongoClient("mongodb://localhost:27017/")
@@ -104,6 +105,14 @@ def get_dataFrame():
                 sits[-1]=tag
     return pd.DataFrame({'title':titles,'artist':artists,'lyric':lyrics,'genre':genres,'issue_date':issue_dates,'topic':topics,'mood':moods,'situation':sits})
                 
+def get_excel(path='./',fname='train.xlsx'):
+    df=get_dataFrame()
+    df.to_excel(os.path.join(path,fname))
 
-df=get_dataFrame()
-df.to_excel('test.xlsx')       
+def get_csv(path='./',fname='train.csv'):
+    df=get_dataFrame()
+    df.to_csv(os.path.join(path,fname))
+
+def get_json(path='./',fname='train.json'):
+    df=get_dataFrame()
+    df.to_json(os.path.join(path,fname))
