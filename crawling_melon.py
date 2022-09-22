@@ -75,6 +75,17 @@ def get_song_tag_from_melon(driver,tag,page=1,alone=False,diff_tags=[],isDebug=F
 
     return song_tags
 
+def go_next_page(driver):
+    next_page=find_element(driver,By.XPATH,'//*[@id="pageObjNavgation"]/div/span')
+    if next_page == None:
+        return False
+    next_page=find_element(next_page,By.TAG_NAME,'a')
+    if next_page == None:
+        return False
+    next_page=clean_cmd(next_page.get_attribute('href'))
+    driver.execute_script(next_page)
+    return True
+
 def get_playlist_cmd(driver,page):
     
     #플레이리스트 가져오기
@@ -86,6 +97,12 @@ def get_playlist_cmd(driver,page):
     #cmd에 있는 javascript: 삭제
     playLists=list(map(clean_cmd,playLists))
 
+    if page > 1 :
+        go_next_page(driver)
+        wait(1,2)
+        next_page_playLists=get_playlist_cmd(driver,page-1)
+        if isinstance(next_page_playLists,list):
+            playLists+=get_playlist_cmd(driver,page-1)
     return playLists
 
 def get_song_tag_from_playlist(driver,tag,cmd,alone=False,diff_tags=[]):
@@ -206,5 +223,6 @@ if __name__=="__main__":
     driver=get_driver()
     url= 'https://www.melon.com/dj/themegenre/djthemegenre_list.htm'
     driver.get(url)
-    cmd=clean_cmd("javascript:MELON.WEBSVC.POC.link.goDjPlaylistDetail('0','Y','N','482263772')")
-    song_tags=get_song_tag_from_playlist(driver,'이별',cmd,alone=True,diff_tags=['기쁨'])
+    song_tags=get_song_tag_from_melon(driver,'이별',page=3)
+    for song_tag in song_tags:
+        print(song_tag.title)
