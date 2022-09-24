@@ -1,5 +1,6 @@
 import argparse
 from tqdm import tqdm
+import copy
 
 import crawling_melon as melon
 import model
@@ -12,21 +13,28 @@ if __name__=="__main__":
     #추출할 태그 인자값으로 설정
     parser = argparse.ArgumentParser("")
     parser.add_argument('tag',nargs='+')
-    parser.add_argument('-c','--collection')
+    parser.add_argument("--page", type=int, default=1)
+    parser.add_argument('--alone',action='store_true')
+    parser.add_argument('-c')
     args=parser.parse_args()
 
-    #추출할 태그 가져오기
+    #인자 값 가져오기
     tags=args.tag
-
-    #collection명 가져오기
-    n_collection=args.collection
-
+    page=args.page
+    n_collection=args.c
+    if n_collection == None:
+        print('collection 이름이 없습니다.')
+        exit()
+    alone=args.alone
+    
     song_tags=[]
 
     #멜론에서 특정 태그 노래 가져오기
     driver=melon.get_driver()
     for tag in tags:
-        song_tags+=melon.get_song_tag_from_melon(driver,tag)
+        diff_tags=copy.deepcopy(tags)
+        diff_tags.remove(tag)
+        song_tags+=melon.get_song_tag_from_melon(driver,tag,alone=alone,page=page,diff_tags=diff_tags)
     
     #태그 노래 데이터베이스에 저장
     for song_tag in song_tags:
